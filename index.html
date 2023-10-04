@@ -31,7 +31,7 @@
       });
 
       const data = await response.json();
-      chatbotOutput.innerText = data.output;
+      chatbotOutput.innerHTML += "<p><strong>ChatGPT:</strong> " + data.response + "</p>";
     });
   </script>
 </body>
