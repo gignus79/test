@@ -21,18 +21,16 @@
 
     chatbotForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
-      const response = await fetch("https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ input: chatbotInput.value })
-      });
-
-      const data = await response.json();
-      chatbotOutput.innerHTML += "<p><strong>ChatGPT:</strong> " + data.response + "</p>";
+      sendMessage();
     });
+
+    function sendMessage() {
+      const message = chatbotInput.value;
+      if (message.trim() !== "") {
+        chatbotOutput.innerHTML += "<p><strong>ChatGPT:</strong> " + message + "</p>";
+        chatbotInput.value = "";
+      }
+    }
   </script>
 </body>
 </html>
