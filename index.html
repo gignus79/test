@@ -21,14 +21,40 @@
 
     chatbotForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      sendMessage();
+      await sendMessage();
     });
 
-    function sendMessage() {
+    async function callChatGPT(input) {
+      try {
+        const response = await fetch('https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot', {
+          method: 'POST',
+          body: JSON.stringify({ userInput: input }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Errore nella chiamata alla Cloud Function');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Si è verificato un errore:', error);
+        return 'Errore nella chiamata al chatbot.';
+      }
+    }
+
+    async function sendMessage() {
       const message = chatbotInput.value;
       if (message.trim() !== "") {
-        chatbotOutput.innerHTML += "<p><strong>ChatGPT:</strong> " + message + "</p>";
+        chatbotOutput.innerHTML += "<p><strong>Utente:</strong> " + message + "</p>";
         chatbotInput.value = "";
+
+        // Chiamata alla Cloud Function
+        const response = await callChatGPT(message);
+        chatbotOutput.innerHTML += "<p><strong>ChatGPT:</strong> " + response + "</p>";
       }
     }
   </script>
