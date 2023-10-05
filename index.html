@@ -4,18 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with ChatGPT</title>
-    <style>
-        /* Il tuo CSS qui */
-    </style>
+  
 </head>
 <body>
     <div id="chatbot">
-        <div id="chatLog"></div>
-        <input type="text" id="userInput" placeholder="Type a message...">
-        <button id="sendButton">Send</button>
-        <button id="clearButton">Clear</button>
-        <div id="loading" style="display:none;">Thinking...</div>
-    </div>
+    <div id="chatLog"></div>
+    <input type="text" id="userInput" placeholder="Type a message...">
+    <button id="sendButton">Send</button>
+    <button id="clearButton">Clear</button>
+    <div id="loading" style="display:none;">Thinking...</div>
+</div>
+
+      <style>
+         /* ... altri stili ... */
+
+    .message {
+        display: flex;
+        align-items: center;
+    }
+
+    .avatar {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
+
+    .user .avatar {
+        background-image: url('path-to-user-avatar.jpg');
+    }
+
+    .bot .avatar {
+        background-image: url('path-to-bot-avatar.jpg');
+    }
+    </style>
+    
 
     <script>
         document.getElementById('sendButton').addEventListener('click', sendMessage);
@@ -77,6 +100,15 @@
         throw error;
     }
 }
+
+        // Esempio di come aggiungere un messaggio al log della chat con un avatar
+    function addMessageToChatLog(role, message) {
+        const chatLog = document.getElementById('chatLog');
+        const messageElement = document.createElement('p');
+        messageElement.className = 'message ' + role;
+        messageElement.innerHTML = `<span class="avatar"></span>${role === 'user' ? 'You' : 'Bot'}: ${message}`;
+        chatLog.appendChild(messageElement);
+    }
 
     </script>
 </body>
