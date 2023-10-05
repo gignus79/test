@@ -11,17 +11,14 @@
             border: 1px solid #ccc;
             padding: 20px;
         }
-
         #chatLog {
             max-height: 300px;
             overflow-y: auto;
             margin-bottom: 20px;
         }
-
         #userInput {
             width: calc(100% - 60px);
         }
-
         #sendButton {
             width: 50px;
         }
@@ -37,38 +34,32 @@
 
     <script>
         document.getElementById('sendButton').addEventListener('click', async () => {
-    console.log("Button Clicked!");  // Questo dovrebbe loggare un messaggio ogni volta che il pulsante viene cliccato
-    
-    const userInput = document.getElementById('userInput');
-    const chatLog = document.getElementById('chatLog');
-    const loading = document.getElementById('loading');
-        
-    const userMessage = userInput.value.trim(); // Aggiunto trim() per rimuovere spazi iniziali/finali
-        
-    // Controllo se il messaggio non è vuoto
-    if(userMessage) {
-        chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
-        userInput.value = '';
+            const userInput = document.getElementById('userInput');
+            const chatLog = document.getElementById('chatLog');
+            const loading = document.getElementById('loading');
             
-        // Mostra l'indicatore di caricamento
-        loading.style.display = 'block';
+            const userMessage = userInput.value.trim();
             
-        try {
-            const botResponse = await sendMessageToBot(userMessage);
-            chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`; // Assicurati che botResponse sia una stringa
-        } catch (error) {
-            chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
-        } finally {
-            // Nascondi l'indicatore di caricamento
-            loading.style.display = 'none';
-            // Scorri il log della chat verso il basso per mostrare l'ultimo messaggio
-            chatLog.scrollTop = chatLog.scrollHeight;
-        }
-    }
-});
+            if(userMessage) {
+                chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
+                userInput.value = '';
+                
+                loading.style.display = 'block';
+                
+                try {
+                    const botResponse = await sendMessageToBot(userMessage);
+                    chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`;
+                } catch (error) {
+                    chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
+                } finally {
+                    loading.style.display = 'none';
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }
+            }
+        });
 
         async function sendMessageToBot(message) {
-            const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
+            const functionUrl = 'YOUR_CLOUD_FUNCTION_URL'; 
             
             try {
                 const response = await fetch(functionUrl, {
@@ -84,7 +75,7 @@
                 }
 
                 const data = await response.json();
-                return data; // Assicurati che data sia una stringa o accedi alla proprietà corretta
+                return data.choices[0].text.trim(); // Assuming the response has this structure
             } catch (error) {
                 console.error('Error:', error);
                 throw error;
