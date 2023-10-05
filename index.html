@@ -6,26 +6,47 @@
     <title>Chat with ChatGPT</title>
     <style>
         #chatbot {
-            max-width: 400px;
-            margin: auto;
-            border: 1px solid #ccc;
-            padding: 20px;
-        }
+    max-width: 400px;
+    margin: auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+}
 
-        #chatLog {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
+#chatLog {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
 
-        #userInput {
-            width: calc(100% - 60px);
-        }
+#userInput {
+    width: calc(100% - 120px);
+}
 
-        #sendButton, #clearButton {
-            width: 100px;
-        }
-    </style>
+#sendButton, #clearButton {
+    width: 50px;
+}
+
+.message {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.avatar {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.user .avatar {
+    background-color: blue;
+}
+
+.bot .avatar {
+    background-color: red;
+}
+</style>
 </head>
 <body>
     <div id="chatbot">
@@ -38,11 +59,13 @@
 
     <script>
         document.getElementById('sendButton').addEventListener('click', sendMessage);
-        document.getElementById('clearButton').addEventListener('click', clearChat);
-        document.getElementById('userInput').addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
+        document.getElementById('userInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
                 sendMessage();
             }
+        });
+        document.getElementById('clearButton').addEventListener('click', () => {
+            document.getElementById('chatLog').innerHTML = '';
         });
 
         async function sendMessage() {
@@ -53,14 +76,22 @@
             const userMessage = userInput.value.trim();
             
             if(userMessage) {
-                chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
+                chatLog.innerHTML += `
+                    <div class="message user">
+                        <div class="avatar"></div>
+                        <p>You: ${userMessage}</p>
+                    </div>`;
                 userInput.value = '';
                 
                 loading.style.display = 'block';
                 
                 try {
                     const botResponse = await sendMessageToBot(userMessage);
-                    chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`;
+                    chatLog.innerHTML += `
+                        <div class="message bot">
+                            <div class="avatar"></div>
+                            <p>Bot: ${botResponse}</p>
+                        </div>`;
                 } catch (error) {
                     chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
                 } finally {
@@ -79,7 +110,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ messages: [{role: "system", content: "You are a helpful assistant."}, {role: "user", content: message}] }),
+                    body: JSON.stringify({ prompt: message }),
                 });
 
                 if (!response.ok) {
@@ -87,16 +118,11 @@
                 }
 
                 const data = await response.json();
-                return data.choices[0].message.content;
+                return data.choices[0].message.content; // Assicurati che data sia una stringa o accedi alla proprietà corretta
             } catch (error) {
                 console.error('Error:', error);
                 throw error;
             }
-        }
-
-        function clearChat() {
-            const chatLog = document.getElementById('chatLog');
-            chatLog.innerHTML = '';
         }
     </script>
 </body>
