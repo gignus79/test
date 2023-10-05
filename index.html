@@ -4,18 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with ChatGPT</title>
-  
-</head>
-<body>
-    <div id="chatbot">
-    <div id="chatLog"></div>
-    <input type="text" id="userInput" placeholder="Type a message...">
-    <button id="sendButton">Send</button>
-    <button id="clearButton">Clear</button>
-    <div id="loading" style="display:none;">Thinking...</div>
-</div>
-
-      <style>
+    <style>
          /* ... altri stili ... */
 
     .message {
@@ -37,8 +26,32 @@
     .bot .avatar {
         background-image: url('path-to-bot-avatar.jpg');
     }
-    </style>
-    
+
+          #userInput {
+    width: calc(100% - 60px);
+    padding: 10px; /* Aggiunge spazio intorno al testo all'interno dell'input */
+    font-size: 16px; /* Aumenta la dimensione del testo */
+    border-radius: 8px; /* Angoli arrotondati */
+}
+
+#sendButton, #clearChat {
+    border-radius: 8px; /* Angoli arrotondati */
+}
+
+#chatbot {
+    border-radius: 8px; /* Angoli arrotondati */
+    /* ... altre regole ... */
+}
+</style>
+</head>
+<body>
+    <div id="chatbot">
+        <div id="chatLog"></div>
+        <input type="text" id="userInput" placeholder="Type a message...">
+        <button id="sendButton">Send</button>
+        <button id="clearChat">Clear Chat</button>
+        <div id="loading" style="display:none;">Thinking...</div>
+    </div>
 
     <script>
         document.getElementById('sendButton').addEventListener('click', sendMessage);
@@ -47,9 +60,17 @@
                 sendMessage();
             }
         });
-        document.getElementById('clearButton').addEventListener('click', function () {
+        document.getElementById('clearChat').addEventListener('click', function () {
             document.getElementById('chatLog').innerHTML = '';
         });
+
+        function formatMessage(message) {
+            message = message.replace(/(\d+\.) ([^\n]+)/g, '<li><strong>$2</strong></li>');
+            if (message.includes('<li>')) {
+                message = '<ol>' + message + '</ol>';
+            }
+            return message;
+        }
 
         async function sendMessage() {
             const userInput = document.getElementById('userInput');
@@ -66,7 +87,7 @@
                 
                 try {
                     const botResponse = await sendMessageToBot(userMessage);
-                    chatLog.innerHTML += `<p>Bot: ${botResponse.message}</p>`;
+                    chatLog.innerHTML += `<p>Bot: ${formatMessage(botResponse.message)}</p>`;
                 } catch (error) {
                     chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
                 } finally {
@@ -77,59 +98,28 @@
         }
 
         async function sendMessageToBot(message) {
-    const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot';
-    
-    try {
-        const response = await fetch(functionUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ prompt: message }),
-        });
+            const functionUrl = 'YOUR_CLOUD_FUNCTION_URL'; 
+            
+            try {
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: message }),
+                });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
         }
-
-        const data = await response.json();
-        console.log("Data received from the server:", data); // Log the data received
-        return data;
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
-}
-
-        // Esempio di come aggiungere un messaggio al log della chat con un avatar
-    function addMessageToChatLog(role, message) {
-    const chatLog = document.getElementById('chatLog');
-    const messageElement = document.createElement('p');
-    messageElement.className = 'message ' + role;
-
-    // Creare un contenitore per il messaggio e l'avatar
-    const messageContent = document.createElement('span');
-    messageContent.innerHTML = `${role === 'user' ? 'You' : 'Bot'}: `;
-    
-    // Creare un contenitore separato per il messaggio per evitare l'iniezione di HTML
-    const messageText = document.createElement(role === 'user' ? 'span' : 'div');
-    if (role === 'bot') {
-        messageText.innerHTML = message; // Per il bot, permettiamo l'HTML
-    } else {
-        messageText.textContent = message; // Per l'utente, evitiamo l'HTML
-    }
-
-    // Aggiungere avatar, nome e messaggio al contenitore del messaggio
-    const avatar = document.createElement('span');
-    avatar.className = 'avatar';
-    messageElement.appendChild(avatar);
-    messageElement.appendChild(messageContent);
-    messageContent.appendChild(messageText);
-
-    // Aggiungere il messaggio al log della chat
-    chatLog.appendChild(messageElement);
-}
-
     </script>
 </body>
 </html>
