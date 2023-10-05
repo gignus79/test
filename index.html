@@ -43,77 +43,80 @@
         <div id="chatLog"></div>
         <input type="text" id="userInput" placeholder="Type a message...">
         <button id="sendButton">Send</button>
-        <button id="clearChat">Clear Chat</button>
+        <button id="exportButton">Export Chat</button>
         <div id="loading" style="display:none;">Thinking...</div>
     </div>
 
     <script>
-        document.getElementById('sendButton').addEventListener('click', sendMessage);
-        document.getElementById('userInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+       document.getElementById('sendButton').addEventListener('click', async () => {
+    const userInput = document.getElementById('userInput');
+    const chatLog = document.getElementById('chatLog');
+    const loading = document.getElementById('loading');
+    
+    const userMessage = userInput.value.trim();
+    
+    if(userMessage) {
+        chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
+        userInput.value = '';
+        
+        loading.style.display = 'block';
+        
+        try {
+            const botResponse = await sendMessageToBot(userMessage);
+            chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`;
+        } catch (error) {
+            chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
+        } finally {
+            loading.style.display = 'none';
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+    }
+});
+
+document.getElementById('exportButton').addEventListener('click', () => {
+    exportChat();
+});
+
+async function sendMessageToBot(message) {
+    const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
+    
+    try {
+        const response = await fetch(functionUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt: message }),
         });
-        document.getElementById('clearChat').addEventListener('click', function () {
-            document.getElementById('chatLog').innerHTML = '';
-        });
 
-        function formatMessage(message) {
-            message = message.replace(/(\d+\.) ([^\n]+)/g, '<li><strong>$2</strong></li>');
-            if (message.includes('<li>')) {
-                message = '<ol>' + message + '</ol>';
-            }
-            return message;
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
         }
 
-        async function sendMessage() {
-            const userInput = document.getElementById('userInput');
-            const chatLog = document.getElementById('chatLog');
-            const loading = document.getElementById('loading');
-            
-            const userMessage = userInput.value.trim();
-            
-            if(userMessage) {
-                chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
-                userInput.value = '';
-                
-                loading.style.display = 'block';
-                
-                try {
-                    const botResponse = await sendMessageToBot(userMessage);
-                    chatLog.innerHTML += `<p>Bot: ${formatMessage(botResponse.message)}</p>`;
-                } catch (error) {
-                    chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
-                } finally {
-                    loading.style.display = 'none';
-                    chatLog.scrollTop = chatLog.scrollHeight;
-                }
-            }
-        }
+        const data = await response.json();
+        return data.message; // Assicurati che data sia una stringa o accedi alla proprietà corretta
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
 
-        async function sendMessageToBot(message) {
-            const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
-            
-            try {
-                const response = await fetch(functionUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: message }),
-                });
+function exportChat() {
+    const chatLog = document.getElementById('chatLog');
+    const chatText = chatLog.innerText;
+    const blob = new Blob([chatText], { type: 'text/plain' });
+    const a = document.createElement('a');
+    
+    a.href = URL.createObjectURL(blob);
+    a.download = 'chat.txt';
+    a.style.display = 'none';
+    
+    document.body.appendChild(a);
+    a.click();
+    
+    document.body.removeChild(a);
+}
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Error:', error);
-                throw error;
-            }
-        }
     </script>
 </body>
 </html>
