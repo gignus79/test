@@ -46,7 +46,7 @@
         <button id="exportButton">Export Chat</button>
         <div id="loading" style="display:none;">Thinking...</div>
     </div>
-
+<button id="exportChat">Export Chat</button>
     <script>
        document.getElementById('sendButton').addEventListener('click', async () => {
     const userInput = document.getElementById('userInput');
@@ -102,20 +102,20 @@ async function sendMessageToBot(message) {
 }
 
 function exportChat() {
-    const chatLog = document.getElementById('chatLog');
-    const chatText = chatLog.innerText;
-    const blob = new Blob([chatText], { type: 'text/plain' });
-    const a = document.createElement('a');
-    
-    a.href = URL.createObjectURL(blob);
-    a.download = 'chat.txt';
-    a.style.display = 'none';
-    
-    document.body.appendChild(a);
-    a.click();
-    
-    document.body.removeChild(a);
-}
+            const chatLog = document.getElementById('chatLog');
+            const chatText = chatLog.innerText;
+            const blob = new Blob([chatText], { type: 'text/plain' });
+            const a = document.createElement('a');
+            
+            a.href = URL.createObjectURL(blob);
+            a.download = 'chat.txt';
+            a.style.display = 'none';
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+        }
 
     </script>
 </body>
