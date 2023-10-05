@@ -5,44 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with ChatGPT</title>
     <style>
-         /* ... altri stili ... */
+        #chatbot {
+            max-width: 400px;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 10px; /* Aggiunto per angoli arrotondati */
+        }
 
-    .message {
-        display: flex;
-        align-items: center;
-    }
+        #chatLog {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
 
-    .avatar {
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        margin-right: 10px;
-    }
+        #userInput {
+            width: calc(100% - 60px);
+            padding: 10px; /* Aggiunto per un input più grande */
+            border-radius: 5px; /* Aggiunto per angoli arrotondati */
+        }
 
-    .user .avatar {
-        background-image: url('path-to-user-avatar.jpg');
-    }
+        #sendButton, #clearChat {
+            padding: 10px 20px; /* Aggiunto per bottoni più grandi */
+            border-radius: 5px; /* Aggiunto per angoli arrotondati */
+            margin-left: 5px;
+        }
 
-    .bot .avatar {
-        background-image: url('path-to-bot-avatar.jpg');
-    }
-
-          #userInput {
-    width: calc(100% - 60px);
-    padding: 10px; /* Aggiunge spazio intorno al testo all'interno dell'input */
-    font-size: 16px; /* Aumenta la dimensione del testo */
-    border-radius: 8px; /* Angoli arrotondati */
-}
-
-#sendButton, #clearChat {
-    border-radius: 8px; /* Angoli arrotondati */
-}
-
-#chatbot {
-    border-radius: 8px; /* Angoli arrotondati */
-    /* ... altre regole ... */
-}
-</style>
+        p {
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
     <div id="chatbot">
