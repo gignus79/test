@@ -37,33 +37,35 @@
 
     <script>
         document.getElementById('sendButton').addEventListener('click', async () => {
-            const userInput = document.getElementById('userInput');
-            const chatLog = document.getElementById('chatLog');
-            const loading = document.getElementById('loading');
+    console.log("Button Clicked!");  // Questo dovrebbe loggare un messaggio ogni volta che il pulsante viene cliccato
+    
+    const userInput = document.getElementById('userInput');
+    const chatLog = document.getElementById('chatLog');
+    const loading = document.getElementById('loading');
+        
+    const userMessage = userInput.value.trim(); // Aggiunto trim() per rimuovere spazi iniziali/finali
+        
+    // Controllo se il messaggio non è vuoto
+    if(userMessage) {
+        chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
+        userInput.value = '';
             
-            const userMessage = userInput.value.trim(); // Aggiunto trim() per rimuovere spazi iniziali/finali
+        // Mostra l'indicatore di caricamento
+        loading.style.display = 'block';
             
-            // Controllo se il messaggio non è vuoto
-            if(userMessage) {
-                chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
-                userInput.value = '';
-                
-                // Mostra l'indicatore di caricamento
-                loading.style.display = 'block';
-                
-                try {
-                    const botResponse = await sendMessageToBot(userMessage);
-                    chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`; // Assicurati che botResponse sia una stringa
-                } catch (error) {
-                    chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
-                } finally {
-                    // Nascondi l'indicatore di caricamento
-                    loading.style.display = 'none';
-                    // Scorri il log della chat verso il basso per mostrare l'ultimo messaggio
-                    chatLog.scrollTop = chatLog.scrollHeight;
-                }
-            }
-        });
+        try {
+            const botResponse = await sendMessageToBot(userMessage);
+            chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`; // Assicurati che botResponse sia una stringa
+        } catch (error) {
+            chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
+        } finally {
+            // Nascondi l'indicatore di caricamento
+            loading.style.display = 'none';
+            // Scorri il log della chat verso il basso per mostrare l'ultimo messaggio
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+    }
+});
 
         async function sendMessageToBot(message) {
             const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
