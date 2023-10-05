@@ -5,37 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with ChatGPT</title>
     <style>
-        #chatbot {
-            max-width: 400px;
-            margin: auto;
-            border: 1px solid #ccc;
-            padding: 20px;
-            border-radius: 10px; /* Aggiunto per angoli arrotondati */
-        }
-
-        #chatLog {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 10px;
-        }
-
-        #userInput {
-            width: calc(100% - 60px);
-            padding: 10px; /* Aggiunto per un input più grande */
-            border-radius: 5px; /* Aggiunto per angoli arrotondati */
-        }
-
-        #sendButton, #clearChat {
-            padding: 10px 20px; /* Aggiunto per bottoni più grandi */
-            border-radius: 5px; /* Aggiunto per angoli arrotondati */
-            margin-left: 5px;
-        }
-
-        p {
-            margin: 5px 0;
-        }
+        /* Il tuo CSS qui */
     </style>
 </head>
 <body>
@@ -43,77 +13,86 @@
         <div id="chatLog"></div>
         <input type="text" id="userInput" placeholder="Type a message...">
         <button id="sendButton">Send</button>
-        <button id="exportButton">Export Chat</button>
+        <button id="clearChat">Clear Chat</button>
+        <button id="exportChat">Export Chat</button>
         <div id="loading" style="display:none;">Thinking...</div>
     </div>
 
-<button id="clearChat">Clear Chat</button>
-<button id="exportChat">Export Chat</button>
-
     <script>
-       document.getElementById('sendButton').addEventListener('click', async () => {
-    const userInput = document.getElementById('userInput');
-    const chatLog = document.getElementById('chatLog');
-    const loading = document.getElementById('loading');
-    
-    const userMessage = userInput.value.trim();
-    
-    if(userMessage) {
-        chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
-        userInput.value = '';
-        
-        loading.style.display = 'block';
-        
-        try {
-            const botResponse = await sendMessageToBot(userMessage);
-            chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`;
-        } catch (error) {
-            chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
-        } finally {
-            loading.style.display = 'none';
-            chatLog.scrollTop = chatLog.scrollHeight;
-        }
-    }
-});
-
-document.getElementById('clearChat').addEventListener('click', function () {
-    document.getElementById('chatLog').innerHTML = '';
-});
-
-document.getElementById('exportChat').addEventListener('click', function () {
-    exportChat();
-});
-
-async function sendMessageToBot(message, temperature, maxTokens) {
-    const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
-    
-    try {
-        const response = await fetch(functionUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                prompt: message,
-                temperature: temperature, // Aggiungi la temperatura
-                maxTokens: maxTokens // Aggiungi i max tokens
-                // Aggiungi altri parametri qui se necessario
-            }),
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+        document.getElementById('userInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        document.getElementById('clearChat').addEventListener('click', function () {
+            document.getElementById('chatLog').innerHTML = '';
+            conversationHistory = []; // Clear the conversation history
+        });
+        document.getElementById('exportChat').addEventListener('click', function () {
+            exportChat();
         });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
+        let conversationHistory = [];
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatLog = document.getElementById('chatLog');
+            const loading = document.getElementById('loading');
+            
+            const userMessage = userInput.value.trim();
+            
+            if(userMessage) {
+                conversationHistory.push({role: 'user', message: userMessage});
+                renderConversation();
+                
+                userInput.value = '';
+                loading.style.display = 'block';
+                
+                try {
+                    const botResponse = await sendMessageToBot(userMessage);
+                    conversationHistory.push({role: 'bot', message: botResponse});
+                    renderConversation();
+                } catch (error) {
+                    conversationHistory.push({role: 'bot', message: 'Sorry, I am unable to respond at the moment.'});
+                    renderConversation();
+                } finally {
+                    loading.style.display = 'none';
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }
+            }
         }
 
-        const data = await response.json();
-        return data.message; // Assicurati che data sia una stringa o accedi alla proprietà corretta
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
-}
+        function renderConversation() {
+            const chatLog = document.getElementById('chatLog');
+            chatLog.innerHTML = conversationHistory.map(msg => `<p><strong>${msg.role === 'user' ? 'You' : 'Bot'}:</strong> ${msg.message}</p>`).join('');
+        }
 
-function exportChat() {
+        async function sendMessageToBot(message) {
+            const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
+            
+            try {
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: message }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                const data = await response.json();
+                return data.message;
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
+        }
+
+        function exportChat() {
             const chatLog = document.getElementById('chatLog');
             const chatText = chatLog.innerText;
             const blob = new Blob([chatText], { type: 'text/plain' });
@@ -128,7 +107,6 @@ function exportChat() {
             
             document.body.removeChild(a);
         }
-
     </script>
 </body>
 </html>
