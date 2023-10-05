@@ -4,62 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with ChatGPT</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Chat with ChatGPT</h1>
-    <div>
-        <label for="userInput">Say something: </label>
-        <input type="text" id="userInput">
-        <button onclick="sendMessage()">Send</button>
-    </div>
+<!-- Blocco HTML -->
+<div id="chatbot">
     <div id="chatLog"></div>
+    <input type="text" id="userInput" placeholder="Type a message...">
+    <button id="sendButton">Send</button>
+    <div id="loading" style="display:none;">Thinking...</div>
+</div>
+</html>
 
-    <script>
-       async function callChatGPT(prompt) {
-    const apiUrl = 'https://api.openai.com/v1/engines/davinci-codex/completions';
-    const apiKey = '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';
+<!-- Blocco CSS -->
+<style>
+    #chatbot {
+        max-width: 400px;
+        margin: auto;
+        border: 1px solid #ccc;
+        padding: 20px;
+    }
+
+    #chatLog {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+
+    #userInput {
+        width: calc(100% - 60px);
+    }
+
+    #sendButton {
+        width: 50px;
+    }
+</style>
+
+
+<!-- Blocco JavaScript -->
+<script>
+    document.getElementById('sendButton').addEventListener('click', async () => {
+        const userInput = document.getElementById('userInput');
+    const chatLog = document.getElementById('chatLog');
+    const loading = document.getElementById('loading');
+    
+    const userMessage = userInput.value;
+    chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
+    userInput.value = '';
+    
+    // Mostra l'indicatore di caricamento
+    loading.style.display = 'block';
     
     try {
-        const response = await fetch(apiUrl, {
+        const botResponse = await sendMessageToBot(userMessage);
+        chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`;
+    } catch (error) {
+        chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
+    } finally {
+        // Nascondi l'indicatore di caricamento
+        loading.style.display = 'none';
+        // Scorri il log della chat verso il basso per mostrare l'ultimo messaggio
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+});
+
+async function sendMessageToBot(message) {
+    const functionUrl = 'YOUR_CLOUD_FUNCTION_URL'; // Sostituisci con l'URL della tua Cloud Function
+    
+    try {
+        const response = await fetch(functionUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
             },
-            body: JSON.stringify({
-                prompt: prompt,
-                max_tokens: 200
-            })
+            body: JSON.stringify({ prompt: message }),
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('API Error:', errorData);
-            alert('Error communicating with ChatGPT: ' + errorData.error.message);
-            return 'Sorry, I am unable to respond at the moment.';
+            throw new Error('Network response was not ok: ' + response.statusText);
         }
 
         const data = await response.json();
-        return data.choices[0].text.trim();
+        return data;
     } catch (error) {
-        console.error('Fetch Error:', error);
-        alert('Error communicating with ChatGPT: ' + error.message);
-        return 'Sorry, I am unable to respond at the moment.';
+        console.error('Error:', error);
+        throw error;
     }
 }
-
-
-        async function sendMessage() {
-            const userInput = document.getElementById('userInput').value;
-            const chatLog = document.getElementById('chatLog');
-            
-            // Aggiungi il messaggio dell'utente al log della chat
-            chatLog.innerHTML += `<p>You: ${userInput}</p>`;
-            
-            // Ottieni la risposta da ChatGPT e aggiungila al log della chat
-            const chatGPTResponse = await callChatGPT(userInput);
-            chatLog.innerHTML += `<p>ChatGPT: ${chatGPTResponse}</p>`;
-        }
-    </script>
-</body>
-</html>
