@@ -5,55 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with ChatGPT</title>
     <style>
-        #chatbot {
-    max-width: 400px;
-    margin: auto;
-    border: 1px solid #ccc;
-    padding: 20px;
-}
-
-#chatLog {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-}
-
-#userInput {
-    width: calc(100% - 120px);
-}
-
-#sendButton, #clearButton {
-    width: 50px;
-}
-
-.message {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.avatar {
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    margin-right: 10px;
-}
-
-.user .avatar {
-    background-color: blue;
-}
-
-.bot .avatar {
-    background-color: red;
-}
-</style>
+        /* Il tuo CSS qui */
+    </style>
 </head>
 <body>
     <div id="chatbot">
         <div id="chatLog"></div>
         <input type="text" id="userInput" placeholder="Type a message...">
         <button id="sendButton">Send</button>
-        <button id="clearButton">Clear Chat</button>
+        <button id="clearButton">Clear</button>
         <div id="loading" style="display:none;">Thinking...</div>
     </div>
 
@@ -64,7 +24,7 @@
                 sendMessage();
             }
         });
-        document.getElementById('clearButton').addEventListener('click', () => {
+        document.getElementById('clearButton').addEventListener('click', function () {
             document.getElementById('chatLog').innerHTML = '';
         });
 
@@ -76,22 +36,14 @@
             const userMessage = userInput.value.trim();
             
             if(userMessage) {
-                chatLog.innerHTML += `
-                    <div class="message user">
-                        <div class="avatar"></div>
-                        <p>You: ${userMessage}</p>
-                    </div>`;
+                chatLog.innerHTML += `<p>You: ${userMessage}</p>`;
                 userInput.value = '';
                 
                 loading.style.display = 'block';
                 
                 try {
                     const botResponse = await sendMessageToBot(userMessage);
-                    chatLog.innerHTML += `
-                        <div class="message bot">
-                            <div class="avatar"></div>
-                            <p>Bot: ${botResponse}</p>
-                        </div>`;
+                    chatLog.innerHTML += `<p>Bot: ${botResponse.message}</p>`;
                 } catch (error) {
                     chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
                 } finally {
@@ -102,29 +54,28 @@
         }
 
         async function sendMessageToBot(message) {
-    const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; // Sostituisci con l'URL della tua Cloud Function
-    
-    try {
-        const response = await fetch(functionUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ prompt: message }), // Assicurati che "message" contenga il testo dell'utente
-        });
+            const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot';
+            
+            try {
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: message }),
+                });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
         }
-
-        const data = await response.json();
-        return data.choices[0].message.content; // Assicurati che il backend risponda con questo formato
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
-}
-
     </script>
 </body>
 </html>
