@@ -5,7 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with ChatGPT</title>
     <style>
-        /* Il tuo CSS va qui */
+        #chatbot {
+            max-width: 400px;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+
+        #chatLog {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        #userInput {
+            width: calc(100% - 60px);
+        }
+
+        #sendButton, #clearButton {
+            width: 100px;
+        }
     </style>
 </head>
 <body>
@@ -13,11 +32,13 @@
         <div id="chatLog"></div>
         <input type="text" id="userInput" placeholder="Type a message...">
         <button id="sendButton">Send</button>
+        <button id="clearButton">Clear Chat</button>
         <div id="loading" style="display:none;">Thinking...</div>
     </div>
 
     <script>
         document.getElementById('sendButton').addEventListener('click', sendMessage);
+        document.getElementById('clearButton').addEventListener('click', clearChat);
         document.getElementById('userInput').addEventListener('keyup', (event) => {
             if (event.key === 'Enter') {
                 sendMessage();
@@ -39,7 +60,7 @@
                 
                 try {
                     const botResponse = await sendMessageToBot(userMessage);
-                    chatLog.innerHTML += `<p>Bot: ${botResponse.message}</p>`;
+                    chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`;
                 } catch (error) {
                     chatLog.innerHTML += `<p>Bot: Sorry, I am unable to respond at the moment.</p>`;
                 } finally {
@@ -58,7 +79,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ prompt: message }),
+                    body: JSON.stringify({ messages: [{role: "system", content: "You are a helpful assistant."}, {role: "user", content: message}] }),
                 });
 
                 if (!response.ok) {
@@ -66,11 +87,16 @@
                 }
 
                 const data = await response.json();
-                return data;
+                return data.choices[0].message.content;
             } catch (error) {
                 console.error('Error:', error);
                 throw error;
             }
+        }
+
+        function clearChat() {
+            const chatLog = document.getElementById('chatLog');
+            chatLog.innerHTML = '';
         }
     </script>
 </body>
