@@ -77,7 +77,7 @@ document.getElementById('exportButton').addEventListener('click', () => {
     exportChat();
 });
 
-async function sendMessageToBot(message) {
+async function sendMessageToBot(message, temperature, maxTokens) {
     const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
     
     try {
@@ -86,7 +86,12 @@ async function sendMessageToBot(message) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ prompt: message }),
+            body: JSON.stringify({ 
+                prompt: message,
+                temperature: temperature, // Aggiungi la temperatura
+                maxTokens: maxTokens // Aggiungi i max tokens
+                // Aggiungi altri parametri qui se necessario
+            }),
         });
 
         if (!response.ok) {
