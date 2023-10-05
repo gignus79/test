@@ -102,28 +102,29 @@
         }
 
         async function sendMessageToBot(message) {
-            const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
-            
-            try {
-                const response = await fetch(functionUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: message }),
-                });
+    const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; // Sostituisci con l'URL della tua Cloud Function
+    
+    try {
+        const response = await fetch(functionUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt: message }), // Assicurati che "message" contenga il testo dell'utente
+        });
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-
-                const data = await response.json();
-                return data.choices[0].message.content; // Assicurati che data sia una stringa o accedi alla proprietà corretta
-            } catch (error) {
-                console.error('Error:', error);
-                throw error;
-            }
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
         }
+
+        const data = await response.json();
+        return data.choices[0].message.content; // Assicurati che il backend risponda con questo formato
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
     </script>
 </body>
 </html>
