@@ -76,7 +76,11 @@
     }
 });
 
-document.getElementById('exportButton').addEventListener('click', () => {
+document.getElementById('clearChat').addEventListener('click', function () {
+    document.getElementById('chatLog').innerHTML = '';
+});
+
+document.getElementById('exportChat').addEventListener('click', function () {
     exportChat();
 });
 
