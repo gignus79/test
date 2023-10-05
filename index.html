@@ -60,14 +60,14 @@
 
         async function sendMessageToBot(message) {
     const functionUrl = 'https://europe-west8-chatbot-test-399410.cloudfunctions.net/chatbot'; 
-            
+    
     try {
         const response = await fetch(functionUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ prompt: message }),
+            body: JSON.stringify({ prompt: message }), // Qui il messaggio viene inviato come "prompt"
         });
 
         if (!response.ok) {
@@ -75,13 +75,13 @@
         }
 
         const data = await response.json();
-        console.log("API Response:", data);  // Log the API response
         return data; 
     } catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
+
 
     </script>
 </body>
