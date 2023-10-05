@@ -103,12 +103,32 @@
 
         // Esempio di come aggiungere un messaggio al log della chat con un avatar
     function addMessageToChatLog(role, message) {
-        const chatLog = document.getElementById('chatLog');
-        const messageElement = document.createElement('p');
-        messageElement.className = 'message ' + role;
-        messageElement.innerHTML = `<span class="avatar"></span>${role === 'user' ? 'You' : 'Bot'}: ${message}`;
-        chatLog.appendChild(messageElement);
+    const chatLog = document.getElementById('chatLog');
+    const messageElement = document.createElement('p');
+    messageElement.className = 'message ' + role;
+
+    // Creare un contenitore per il messaggio e l'avatar
+    const messageContent = document.createElement('span');
+    messageContent.innerHTML = `${role === 'user' ? 'You' : 'Bot'}: `;
+    
+    // Creare un contenitore separato per il messaggio per evitare l'iniezione di HTML
+    const messageText = document.createElement(role === 'user' ? 'span' : 'div');
+    if (role === 'bot') {
+        messageText.innerHTML = message; // Per il bot, permettiamo l'HTML
+    } else {
+        messageText.textContent = message; // Per l'utente, evitiamo l'HTML
     }
+
+    // Aggiungere avatar, nome e messaggio al contenitore del messaggio
+    const avatar = document.createElement('span');
+    avatar.className = 'avatar';
+    messageElement.appendChild(avatar);
+    messageElement.appendChild(messageContent);
+    messageContent.appendChild(messageText);
+
+    // Aggiungere il messaggio al log della chat
+    chatLog.appendChild(messageElement);
+}
 
     </script>
 </body>
